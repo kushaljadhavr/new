@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Will you be my Valentine?</title>
+
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+<style>
+:root{
+  --pink:#ff2e78;
+}
+
+*{box-sizing:border-box;}
+
+body{
+  margin:0;
+  height:100vh;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:system-ui;
+  background:linear-gradient(180deg,#0f0c29,#302b63,#24243e);
+  color:white;
+}
+
+/* RAIN BACKGROUND */
+canvas#rain{
+  position:fixed;
+  inset:0;
+  z-index:0;
+}
+
+/* FLOATING HEARTS */
+.heart{
+  position:fixed;
+  font-size:20px;
+  animation:floatUp 6s linear infinite;
+  opacity:0.8;
+  z-index:1;
+}
+@keyframes floatUp{
+  from{transform:translateY(100vh); opacity:0;}
+  to{transform:translateY(-10vh); opacity:1;}
+}
+
+/* CARD */
+.card{
+  position:relative;
+  z-index:2;
+  background:rgba(255,255,255,0.08);
+  backdrop-filter:blur(12px);
+  padding:30px;
+  border-radius:25px;
+  text-align:center;
+  width:min(90vw,600px);
+  box-shadow:0 0 40px rgba(255,0,120,0.3);
+}
+
+h1{
+  font-size:clamp(24px,4vw,42px);
+  margin-bottom:25px;
+  text-shadow:0 0 15px var(--pink);
+}
+
+/* BUTTONS */
+button{
+  padding:15px 30px;
+  font-size:18px;
+  border:none;
+  border-radius:40px;
+  cursor:pointer;
+  margin:10px;
+  font-weight:bold;
+  transition:all .2s ease;
+}
+
+#yesBtn{
+  background:var(--pink);
+  color:white;
+  box-shadow:0 0 20px var(--pink);
+  animation:pulse 1.2s infinite;
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 10px var(--pink);}
+  50%{box-shadow:0 0 35px var(--pink);}
+  100%{box-shadow:0 0 10px var(--pink);}
+}
+
+#noBtn{
+  background:#aaa;
+}
+
+.result{
+  display:none;
+  margin-top:20px;
+  font-size:28px;
+}
+
+/* CURSOR SPARKLE */
+.sparkle{
+  position:fixed;
+  pointer-events:none;
+  font-size:18px;
+  animation:spark 0.8s linear forwards;
+}
+@keyframes spark{
+  to{transform:translateY(-30px); opacity:0;}
+}
+</style>
+</head>
+
+<body>
+
+<canvas id="rain"></canvas>
+
+<div class="card">
+  <h1>Teju, will you be mine forever?</h1>
+
+  <button id="yesBtn">YES 💖</button>
+  <button id="noBtn">NO 🙈</button>
+
+  <div class="result" id="result">
+    SHE SAID YESSSS!!! 💍🎆
+  </div>
+</div>
+
+<!-- Romantic music -->
+<audio id="bgMusic" loop>
+  <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_8e8d3bbf2a.mp3" type="audio/mpeg">
+</audio>
+
+<script>
+
+/* AUTO MUSIC AFTER FIRST CLICK (browser rule) */
+document.body.addEventListener("click",()=>{
+  document.getElementById("bgMusic").play();
+},{once:true});
+
+/* RAIN EFFECT */
+const rainCanvas=document.getElementById("rain");
+const ctx=rainCanvas.getContext("2d");
+rainCanvas.width=window.innerWidth;
+rainCanvas.height=window.innerHeight;
+
+let drops=[];
+for(let i=0;i<150;i++){
+  drops.push({
+    x:Math.random()*rainCanvas.width,
+    y:Math.random()*rainCanvas.height,
+    l:Math.random()*1,
+    xs:-4+Math.random()*4+2,
+    ys:10+Math.random()*10
+  });
+}
+
+function drawRain(){
+  ctx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
+  ctx.strokeStyle="rgba(255,255,255,0.3)";
+  ctx.lineWidth=1;
+  ctx.beginPath();
+  for(let i=0;i<drops.length;i++){
+    let d=drops[i];
+    ctx.moveTo(d.x,d.y);
+    ctx.lineTo(d.x+d.l*d.xs,d.y+d.l*d.ys);
+  }
+  ctx.stroke();
+  moveRain();
+}
+function moveRain(){
+  for(let i=0;i<drops.length;i++){
+    let d=drops[i];
+    d.x+=d.xs;
+    d.y+=d.ys;
+    if(d.y>rainCanvas.height||d.x>rainCanvas.width){
+      d.x=Math.random()*rainCanvas.width;
+      d.y=-20;
+    }
+  }
+}
+setInterval(drawRain,30);
+
+/* FLOATING HEARTS */
+setInterval(()=>{
+  const heart=document.createElement("div");
+  heart.className="heart";
+  heart.style.left=Math.random()*100+"vw";
+  heart.innerHTML="💖";
+  document.body.appendChild(heart);
+  setTimeout(()=>heart.remove(),6000);
+},800);
+
+/* NO BUTTON RUNS */
+const noBtn=document.getElementById("noBtn");
+noBtn.addEventListener("mouseover",()=>{
+  noBtn.style.position="absolute";
+  noBtn.style.left=Math.random()*80+"%";
+  noBtn.style.top=Math.random()*80+"%";
+});
+
+/* YES CLICK */
+const yesBtn=document.getElementById("yesBtn");
+const result=document.getElementById("result");
+
+yesBtn.addEventListener("click",()=>{
+  result.style.display="block";
+
+  confetti({
+    particleCount:400,
+    spread:200,
+    origin:{y:0.6}
+  });
+
+  for(let i=0;i<5;i++){
+    setTimeout(()=>{
+      confetti({
+        particleCount:200,
+        spread:120,
+        origin:{x:Math.random(),y:Math.random()}
+      });
+    },i*300);
+  }
+});
+
+/* SPARKLE CURSOR */
+document.addEventListener("mousemove",(e)=>{
+  const s=document.createElement("div");
+  s.className="sparkle";
+  s.style.left=e.clientX+"px";
+  s.style.top=e.clientY+"px";
+  s.innerHTML="✨";
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),800);
+});
+
+</script>
+</body>
+</html>
