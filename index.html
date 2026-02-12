@@ -1,16 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Will you be my Valentine?</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TejuTanu❤️</title>
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 
 <style>
-:root{
-  --pink:#ff2e78;
-}
+:root{ --pink:#ff2e78; }
 
 *{box-sizing:border-box;}
 
@@ -26,8 +24,8 @@ body{
   color:white;
 }
 
-/* RAIN BACKGROUND */
-canvas#rain{
+/* RAIN */
+#rain{
   position:fixed;
   inset:0;
   z-index:0;
@@ -42,8 +40,8 @@ canvas#rain{
   z-index:1;
 }
 @keyframes floatUp{
-  from{transform:translateY(100vh); opacity:0;}
-  to{transform:translateY(-10vh); opacity:1;}
+  from{transform:translateY(100vh);opacity:0;}
+  to{transform:translateY(-10vh);opacity:1;}
 }
 
 /* CARD */
@@ -51,7 +49,7 @@ canvas#rain{
   position:relative;
   z-index:2;
   background:rgba(255,255,255,0.08);
-  backdrop-filter:blur(12px);
+  backdrop-filter:blur(14px);
   padding:30px;
   border-radius:25px;
   text-align:center;
@@ -62,7 +60,7 @@ canvas#rain{
 h1{
   font-size:clamp(24px,4vw,42px);
   margin-bottom:25px;
-  text-shadow:0 0 15px var(--pink);
+  text-shadow:0 0 20px var(--pink);
 }
 
 /* BUTTONS */
@@ -74,24 +72,22 @@ button{
   cursor:pointer;
   margin:10px;
   font-weight:bold;
-  transition:all .2s ease;
+  transition:.2s;
 }
 
 #yesBtn{
   background:var(--pink);
   color:white;
-  box-shadow:0 0 20px var(--pink);
+  box-shadow:0 0 25px var(--pink);
   animation:pulse 1.2s infinite;
 }
 @keyframes pulse{
   0%{box-shadow:0 0 10px var(--pink);}
-  50%{box-shadow:0 0 35px var(--pink);}
+  50%{box-shadow:0 0 40px var(--pink);}
   100%{box-shadow:0 0 10px var(--pink);}
 }
 
-#noBtn{
-  background:#aaa;
-}
+#noBtn{ background:#aaa; }
 
 .result{
   display:none;
@@ -104,10 +100,10 @@ button{
   position:fixed;
   pointer-events:none;
   font-size:18px;
-  animation:spark 0.8s linear forwards;
+  animation:spark .8s linear forwards;
 }
 @keyframes spark{
-  to{transform:translateY(-30px); opacity:0;}
+  to{transform:translateY(-30px);opacity:0;}
 }
 </style>
 </head>
@@ -117,8 +113,7 @@ button{
 <canvas id="rain"></canvas>
 
 <div class="card">
-  <h1>Teju, will you be mine forever?</h1>
-
+  <h1>Teju, will you be mine forever? 💍</h1>
   <button id="yesBtn">YES 💖</button>
   <button id="noBtn">NO 🙈</button>
 
@@ -127,19 +122,34 @@ button{
   </div>
 </div>
 
-<!-- Romantic music -->
-<audio id="bgMusic" loop>
+<!-- BACKGROUND MUSIC -->
+<audio id="bgMusic" loop preload="auto">
   <source src="https://cdn.pixabay.com/audio/2022/03/15/audio_8e8d3bbf2a.mp3" type="audio/mpeg">
 </audio>
 
 <script>
 
-/* AUTO MUSIC AFTER FIRST CLICK (browser rule) */
-document.body.addEventListener("click",()=>{
-  document.getElementById("bgMusic").play();
-},{once:true});
+/* ================= MUSIC CONTROL ================= */
+const music=document.getElementById("bgMusic");
+music.volume=0;
 
-/* RAIN EFFECT */
+function fadeInMusic(){
+  music.play().then(()=>{
+    let vol=0;
+    const fade=setInterval(()=>{
+      if(vol<0.6){
+        vol+=0.02;
+        music.volume=vol;
+      }else{
+        clearInterval(fade);
+      }
+    },100);
+  }).catch(()=>{});
+}
+
+document.body.addEventListener("click",fadeInMusic,{once:true});
+
+/* ================= RAIN EFFECT ================= */
 const rainCanvas=document.getElementById("rain");
 const ctx=rainCanvas.getContext("2d");
 rainCanvas.width=window.innerWidth;
@@ -150,7 +160,6 @@ for(let i=0;i<150;i++){
   drops.push({
     x:Math.random()*rainCanvas.width,
     y:Math.random()*rainCanvas.height,
-    l:Math.random()*1,
     xs:-4+Math.random()*4+2,
     ys:10+Math.random()*10
   });
@@ -159,30 +168,25 @@ for(let i=0;i<150;i++){
 function drawRain(){
   ctx.clearRect(0,0,rainCanvas.width,rainCanvas.height);
   ctx.strokeStyle="rgba(255,255,255,0.3)";
-  ctx.lineWidth=1;
   ctx.beginPath();
-  for(let i=0;i<drops.length;i++){
-    let d=drops[i];
+  for(let d of drops){
     ctx.moveTo(d.x,d.y);
-    ctx.lineTo(d.x+d.l*d.xs,d.y+d.l*d.ys);
+    ctx.lineTo(d.x,d.y+10);
   }
   ctx.stroke();
-  moveRain();
-}
-function moveRain(){
-  for(let i=0;i<drops.length;i++){
-    let d=drops[i];
+
+  for(let d of drops){
     d.x+=d.xs;
     d.y+=d.ys;
-    if(d.y>rainCanvas.height||d.x>rainCanvas.width){
-      d.x=Math.random()*rainCanvas.width;
+    if(d.y>rainCanvas.height){
       d.y=-20;
+      d.x=Math.random()*rainCanvas.width;
     }
   }
 }
 setInterval(drawRain,30);
 
-/* FLOATING HEARTS */
+/* ================= FLOATING HEARTS ================= */
 setInterval(()=>{
   const heart=document.createElement("div");
   heart.className="heart";
@@ -192,7 +196,7 @@ setInterval(()=>{
   setTimeout(()=>heart.remove(),6000);
 },800);
 
-/* NO BUTTON RUNS */
+/* ================= NO BUTTON ESCAPE ================= */
 const noBtn=document.getElementById("noBtn");
 noBtn.addEventListener("mouseover",()=>{
   noBtn.style.position="absolute";
@@ -200,31 +204,28 @@ noBtn.addEventListener("mouseover",()=>{
   noBtn.style.top=Math.random()*80+"%";
 });
 
-/* YES CLICK */
+/* ================= YES CLICK ================= */
 const yesBtn=document.getElementById("yesBtn");
 const result=document.getElementById("result");
 
 yesBtn.addEventListener("click",()=>{
   result.style.display="block";
+  fadeInMusic();
 
-  confetti({
-    particleCount:400,
-    spread:200,
-    origin:{y:0.6}
-  });
+  confetti({particleCount:500,spread:200,origin:{y:0.6}});
 
-  for(let i=0;i<5;i++){
+  for(let i=0;i<6;i++){
     setTimeout(()=>{
       confetti({
         particleCount:200,
         spread:120,
         origin:{x:Math.random(),y:Math.random()}
       });
-    },i*300);
+    },i*350);
   }
 });
 
-/* SPARKLE CURSOR */
+/* ================= SPARKLE CURSOR ================= */
 document.addEventListener("mousemove",(e)=>{
   const s=document.createElement("div");
   s.className="sparkle";
